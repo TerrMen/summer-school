@@ -1,8 +1,13 @@
 #include <stdio.h>
 #include <stdint.h>
+#include <stdlib.h>
+#include <stddef.h>
 
+const int ARGUMENTS_COUNT = 2;
+
+#pragma pack(2)
 typedef struct BMPheader{
-    unsigned char id[2];
+    uint8_t id[2];
     uint32_t size;
     uint32_t unused;
     uint32_t offset;
@@ -22,6 +27,27 @@ typedef struct DIBheader{
     uint32_t important_colors;
 } DIBheader;
 
+FILE* open_BMP(char *path_to_file) {
+    return fopen(path_to_file, "rb");
+}
+
+int read_BMP(FILE *image) {
+    BMPheader *bmpheader = (BMPheader*)malloc(sizeof(BMPheader));
+    fread(bmpheader, sizeof(BMPheader), 1, image);
+}
+
 int main(int argc, char **argv){
+    FILE *image;
+    if (argc != ARGUMENTS_COUNT) {
+        fprintf(stderr, "Error: wrong number of arguments");
+        return 0;
+    }
+    else if (!(image = open_BMP(argv[1]))) {
+        fprintf(stderr, "Error: can't open the file");
+        return 0;
+    }
+    else {
+        read_BMP(image);
+    }
     return 0;
 }
