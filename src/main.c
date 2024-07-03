@@ -4,6 +4,8 @@
 #include <stddef.h>
 
 const int ARGUMENTS_COUNT = 2;
+const int HEADERS_VERSION4_SIZE = 122;
+const int HEADERS_VERSION5_SIZE = 138;
 
 #pragma pack(2)
 typedef struct BMPheader{
@@ -13,7 +15,7 @@ typedef struct BMPheader{
     uint32_t offset;
 } BMPheader;
 
-typedef struct DIBheader_version{
+typedef struct DIBheader_version3{
     uint32_t dib_size;
     uint32_t width;
     uint32_t height;
@@ -25,15 +27,58 @@ typedef struct DIBheader_version{
     uint32_t vertical_resolution;
     uint32_t colors_count;
     uint32_t important_colors;
+} DIBheader_version3;
+
+typedef struct DIBheader_version4{
+    uint32_t red_mask;
+    uint32_t green_mask;
+    uint32_t blue_mask;
+    uint32_t alpha_mask;
+    uint32_t cstype;
+    uint64_t endpoint_part1;
+    uint64_t endpoint_part2;
+    uint64_t endpoint_part3;
+    uint64_t endpoint_part4;
+    uint32_t endpoint_part5;
+    uint32_t gamma_red;
+    uint32_t gamma_green;
+    uint32_t gamma_blue;
+} DIBheader_version4;
+
+typedef struct DIBheader_version5{
+    uint32_t intent;
+    uint32_t profile_data;
+    uint32_t profile_size;
+    uint32_t unused;
+} DIBheader_version5;
+
+typedef struct DIBheader{
+    DIBheader_version3 *dib_header_v3;
+    DIBheader_version4 *dib_header_v4;
+    DIBheader_version5 *dib_header_v5;
 } DIBheader;
 
 FILE *open_BMPfile(char *path_to_file) {
     return fopen(path_to_file, "rb");
 }
 
-DIBheader *get_DIBheader(FILE *image) {
+DIBheader *get_DIBheader(FILE *image, uint32_t offset) {
+    DIBheader_version3 *dibheader_version3 = (DIBheader_version3*)malloc(sizeof(DIBheader_version3));
+    fread(dibheader_version3, sizeof(DIBheader_version3), 1, image);
+    DIBheader_version4 *dibheader_version4 = NULL;
+    DIBheader_version5 *dibheader_version5 = NULL;
+    if (offset >= HEADERS_VERSION4_SIZE) {
+        dibheader_version4 = (DIBheader_version4*)malloc(sizeof(DIBheader_version4));
+        fread(dibheader_version4, sizeof(DIBheader_version4), 1, image);
+    }
+    if (offset == HEADERS_VERSION5_SIZE) {
+        dibheader_version5 = (DIBheader_version5*)malloc(sizeof(DIBheader_version5));
+        fread(dibheader_version5, sizeof(DIBheader_version5), 1, image);
+    }
     DIBheader *dibheader = (DIBheader*)malloc(sizeof(DIBheader));
-    fread(dibheader, sizeof(DIBheader), 1, image);
+    dibheader->dib_header_v3 = dibheader_version3;
+    dibheader->dib_header_v4 = dibheader_version4;
+    dibheader->dib_header_v5 = dibheader_version5;
     return dibheader;
 }
 
@@ -49,15 +94,30 @@ void print_BMPheader(BMPheader *bmpheader) {
 }
 
 void print_DIBheader(DIBheader *dibheader) {
-    printf("Width: %d\n", dibheader->width);
-    printf("Height: %d\n", dibheader->height);
-    printf("Number of color planes: %d\n", dibheader->planes_count);
-    printf("Bits/pixel: %d\n", dibheader->bits_count);
-    printf("Compression: %d\n", dibheader->compression); //todo
-    printf("Size of the bitmap data: %d\n", dibheader->bitmap_data_size);
-    printf("Pixels/meter: %dx%d\n", dibheader->horizontal_resolution, dibheader->vertical_resolution);
-    printf("Number of colors: %d\n", dibheader->colors_count);
-    printf("Number of important colors: %d\n", dibheader->important_colors);
+    printf("Width: %d\n", dibheader->dib_header_v3->width);
+    printf("Height: %d\n", dibheader->dib_header_v3->height);
+    printf("Number of color planes: %d\n", dibheader->dib_header_v3->planes_count);
+    printf("Bits/pixel: %d\n", dibheader->dib_header_v3->bits_count);
+    printf("Compression: %d\n", dibheader->dib_header_v3->compression); //todo
+    printf("Size of the bitmap data: %d\n", dibheader->dib_header_v3->bitmap_data_size);
+    printf("Pixels/meter: %dx%d\n", dibheader->dib_header_v3->horizontal_resolution, dibheader->dib_header_v3->vertical_resolution);
+    printf("Number of colors: %d\n", dibheader->dib_header_v3->colors_count);
+    printf("Number of important colors: %d\n", dibheader->dib_header_v3->important_colors);
+    if (dibheader->dib_header_v4) {
+        printf("Red mask: %d\n", dibheader->dib_header_v4->red_mask);
+        printf("Green mask: %d\n", dibheader->dib_header_v4->green_mask);
+        printf("Blue mask: %d\n", dibheader->dib_header_v4->blue_mask);
+        printf("Alpha mask: %d\n", dibheader->dib_header_v4->alpha_mask);
+        printf("CSType: %d\n", dibheader->dib_header_v4->cstype);
+        printf("Gamma red: %d\n", dibheader->dib_header_v4->gamma_red);
+        printf("Gamma green: %d\n", dibheader->dib_header_v4->gamma_green);
+        printf("Gamma blue: %d\n", dibheader->dib_header_v4->gamma_blue);
+    }
+    if (dibheader->dib_header_v5) {
+        printf("Intent: %d\n", dibheader->dib_header_v5->intent);
+        printf("Profile data: %d\n", dibheader->dib_header_v5->profile_data);
+        printf("Profile size: %d\n", dibheader->dib_header_v5->profile_size);
+    }
 }
 
 int main(int argc, char **argv){
@@ -71,8 +131,10 @@ int main(int argc, char **argv){
         return 0;
     }
     BMPheader *bmpheader = get_BMPheader(image);
-    DIBheader *dibheader = get_DIBheader(image);
+    DIBheader *dibheader = get_DIBheader(image, bmpheader->offset);
     print_BMPheader(bmpheader);
     print_DIBheader(dibheader);
+    free(bmpheader);
+    free(dibheader);
     return 0;
 }
