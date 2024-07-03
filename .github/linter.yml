@@ -1,0 +1,17 @@
+name: linter
+
+on:
+  pull_request:
+    branches:
+      main
+  workflow_dispatch:
+
+  jobs:
+    c-linter:
+      name: c-linter
+      runs-on: ubuntu-latest
+      steps:
+        - name: c-linter
+          uses: ArtificialAmateur/cpp-linter-action@master
+      env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
