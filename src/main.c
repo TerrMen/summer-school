@@ -13,7 +13,7 @@ typedef struct BMPheader{
     uint32_t offset;
 } BMPheader;
 
-typedef struct DIBheader{
+typedef struct DIBheader_version{
     uint32_t dib_size;
     uint32_t width;
     uint32_t height;
@@ -27,13 +27,37 @@ typedef struct DIBheader{
     uint32_t important_colors;
 } DIBheader;
 
-FILE* open_BMP(char *path_to_file) {
+FILE *open_BMPfile(char *path_to_file) {
     return fopen(path_to_file, "rb");
 }
 
-int read_BMP(FILE *image) {
+DIBheader *get_DIBheader(FILE *image) {
+    DIBheader *dibheader = (DIBheader*)malloc(sizeof(DIBheader));
+    fread(dibheader, sizeof(DIBheader), 1, image);
+    return dibheader;
+}
+
+BMPheader *get_BMPheader(FILE *image) {
     BMPheader *bmpheader = (BMPheader*)malloc(sizeof(BMPheader));
     fread(bmpheader, sizeof(BMPheader), 1, image);
+    return bmpheader;
+}
+
+void print_BMPheader(BMPheader *bmpheader) {
+    printf("Size: %d\n", bmpheader->size);
+    printf("Offset of the bitmap data: %d\n", bmpheader->offset);
+}
+
+void print_DIBheader(DIBheader *dibheader) {
+    printf("Width: %d\n", dibheader->width);
+    printf("Height: %d\n", dibheader->height);
+    printf("Number of color planes: %d\n", dibheader->planes_count);
+    printf("Bits/pixel: %d\n", dibheader->bits_count);
+    printf("Compression: %d\n", dibheader->compression); //todo
+    printf("Size of the bitmap data: %d\n", dibheader->bitmap_data_size);
+    printf("Pixels/meter: %dx%d\n", dibheader->horizontal_resolution, dibheader->vertical_resolution);
+    printf("Number of colors: %d\n", dibheader->colors_count);
+    printf("Number of important colors: %d\n", dibheader->important_colors);
 }
 
 int main(int argc, char **argv){
@@ -42,12 +66,13 @@ int main(int argc, char **argv){
         fprintf(stderr, "Error: wrong number of arguments");
         return 0;
     }
-    else if (!(image = open_BMP(argv[1]))) {
+    else if (!(image = open_BMPfile(argv[1]))) {
         fprintf(stderr, "Error: can't open the file");
         return 0;
     }
-    else {
-        read_BMP(image);
-    }
+    BMPheader *bmpheader = get_BMPheader(image);
+    DIBheader *dibheader = get_DIBheader(image);
+    print_BMPheader(bmpheader);
+    print_DIBheader(dibheader);
     return 0;
 }
