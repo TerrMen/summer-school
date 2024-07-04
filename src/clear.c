@@ -1,4 +1,4 @@
-#include "bmp.h"
+#include "bmp_headers.h"
 #include <stdlib.h>
 
 void clear(BMPheader *bmpheader, DIBheader *dibheader)

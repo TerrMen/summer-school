@@ -1,9 +1,9 @@
 #include <stdio.h>
-#include "bmp.h"
+#include "bmp_headers.h"
 
-char *get_intent(uint32_t number)
+char *get_intent(uint32_t intent)
 {
-    switch (number)
+    switch (intent)
     {
     case 1:
         return "LCS_GM_BUSINESS";
@@ -18,9 +18,9 @@ char *get_intent(uint32_t number)
     }
 }
 
-char *get_CSType(uint32_t number)
+char *get_CSType(uint32_t cstype)
 {
-    switch (number)
+    switch (cstype)
     {
     case 0:
         return "LCS_CALIBRATED_RGB";
@@ -35,9 +35,9 @@ char *get_CSType(uint32_t number)
     }
 }
 
-char *get_compression(uint32_t number)
+char *get_compression(uint32_t compression)
 {
-    switch (number)
+    switch (compression)
     {
     case 0:
         return "BI_RGB";
@@ -75,6 +75,7 @@ void print_DIBheader(DIBheader *dibheader)
     printf("Pixels/meter: %dx%d\n", dibheader->dib_header_v3->horizontal_resolution, dibheader->dib_header_v3->vertical_resolution);
     printf("Number of colors: %d\n", dibheader->dib_header_v3->colors_count);
     printf("Number of important colors: %d\n", dibheader->dib_header_v3->important_colors);
+
     if (dibheader->dib_header_v4)
     {
         printf("Red mask: %X\n", dibheader->dib_header_v4->red_mask);
@@ -86,6 +87,7 @@ void print_DIBheader(DIBheader *dibheader)
         printf("Gamma green: %d\n", dibheader->dib_header_v4->gamma_green);
         printf("Gamma blue: %d\n", dibheader->dib_header_v4->gamma_blue);
     }
+
     if (dibheader->dib_header_v5)
     {
         printf("Intent: %s\n", get_intent(dibheader->dib_header_v5->intent));

@@ -1,5 +1,6 @@
 #include <stdio.h>
-#include "bmp.h"
+#include <string.h>
+#include "bmp_headers.h"
 
 const int ARGUMENTS_COUNT = 2;
 
@@ -19,14 +20,22 @@ int main(int argc, char **argv)
     FILE *image;
     if (argc != ARGUMENTS_COUNT)
     {
-        fprintf(stderr, "Error: wrong number of arguments");
+        fprintf(stderr, "Error: wrong number of arguments\n");
+        return 0;
+    }
+
+    char *str_id = strstr(argv[1], ".bmp");
+    if (str_id == NULL || (str_id - argv[1]) != strlen(argv[1]) - 4)
+    {
+        fprintf(stderr, "Error: file isn't in bmp-format\n");
         return 0;
     }
     else if (!(image = open_BMPfile(argv[1])))
     {
-        fprintf(stderr, "Error: can't open the file");
+        fprintf(stderr, "Error: can't open the file\n");
         return 0;
     }
+
     BMPheader *bmpheader = get_BMPheader(image);
     DIBheader *dibheader = get_DIBheader(image, bmpheader->offset);
     print_BMPheader(bmpheader);
