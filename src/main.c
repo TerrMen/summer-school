@@ -1,14 +1,13 @@
 #include <stdio.h>
-#include <string.h>
+#include <stdbool.h>
 #include "bmp_headers.h"
-
-const int ARGUMENTS_COUNT = 2;
 
 BMPheader *get_BMPheader(FILE *image);
 DIBheader *get_DIBheader(FILE *image, uint32_t offset);
 void print_DIBheader(DIBheader *dibheader);
 void print_BMPheader(BMPheader *bmpheader);
 void clear(BMPheader *bmpheader, DIBheader *dibheader);
+bool is_error_in_arguments_occured(int argc, char **argv);
 
 FILE *open_BMPfile(char *path_to_file)
 {
@@ -18,19 +17,12 @@ FILE *open_BMPfile(char *path_to_file)
 int main(int argc, char **argv)
 {
     FILE *image;
-    if (argc != ARGUMENTS_COUNT)
+    if (is_error_in_arguments_occured(argc, argv))
     {
-        fprintf(stderr, "Error: wrong number of arguments\n");
         return 0;
     }
 
-    char *str_id = strstr(argv[1], ".bmp");
-    if (str_id == NULL || (str_id - argv[1]) != strlen(argv[1]) - 4)
-    {
-        fprintf(stderr, "Error: file isn't in bmp-format\n");
-        return 0;
-    }
-    else if (!(image = open_BMPfile(argv[1])))
+    if (!(image = open_BMPfile(argv[1])))
     {
         fprintf(stderr, "Error: can't open the file\n");
         return 0;
