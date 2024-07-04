@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+const int HEADERS_VERSION3_SIZE = 54;
 const int HEADERS_VERSION4_SIZE = 122;
 const int HEADERS_VERSION5_SIZE = 138;
 
@@ -34,5 +35,10 @@ BMPheader *get_BMPheader(FILE *image)
 {
     BMPheader *bmpheader = (BMPheader *)malloc(sizeof(BMPheader));
     fread(bmpheader, sizeof(BMPheader), 1, image);
+    if (bmpheader->offset != HEADERS_VERSION3_SIZE && bmpheader->offset != HEADERS_VERSION4_SIZE && bmpheader->offset != HEADERS_VERSION5_SIZE)
+    {
+        free(bmpheader);
+        return NULL;
+    }
     return bmpheader;
 }
