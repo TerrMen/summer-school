@@ -31,6 +31,7 @@ int main(int argc, char **argv)
     BMPheader *bmpheader = get_BMPheader(image);
     if (!bmpheader)
     {
+        fclose(image);
         fprintf(stderr, "Error: bmp headers don't match version 3, 4, 5\n");
         return 0;
     }

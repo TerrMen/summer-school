@@ -37,6 +37,7 @@ BMPheader *get_BMPheader(FILE *image)
     fread(bmpheader, sizeof(BMPheader), 1, image);
     if (bmpheader->offset != HEADERS_VERSION3_SIZE && bmpheader->offset != HEADERS_VERSION4_SIZE && bmpheader->offset != HEADERS_VERSION5_SIZE)
     {
+        free(bmpheader);
         return NULL;
     }
     return bmpheader;
