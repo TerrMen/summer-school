@@ -13,7 +13,7 @@ bool is_error_in_arguments_occured(int argc, char **argv)
     }
 
     char *str_id = strstr(argv[1], ".bmp");
-    if (str_id == NULL || (str_id - argv[1]) != strlen(argv[1]) - 4)
+    if (str_id == NULL || (str_id - argv[1]) != (long int)strlen(argv[1]) - 4)
     {
         fprintf(stderr, "Error: file isn't in bmp-format\n");
         return true;
