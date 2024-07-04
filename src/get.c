@@ -1,4 +1,4 @@
-#include "bmp.h"
+#include "bmp_headers.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -11,6 +11,7 @@ DIBheader *get_DIBheader(FILE *image, uint32_t offset)
     fread(dibheader_version3, sizeof(DIBheader_version3), 1, image);
     DIBheader_version4 *dibheader_version4 = NULL;
     DIBheader_version5 *dibheader_version5 = NULL;
+
     if (offset >= HEADERS_VERSION4_SIZE)
     {
         dibheader_version4 = (DIBheader_version4 *)malloc(sizeof(DIBheader_version4));
@@ -21,6 +22,7 @@ DIBheader *get_DIBheader(FILE *image, uint32_t offset)
         dibheader_version5 = (DIBheader_version5 *)malloc(sizeof(DIBheader_version5));
         fread(dibheader_version5, sizeof(DIBheader_version5), 1, image);
     }
+
     DIBheader *dibheader = (DIBheader *)malloc(sizeof(DIBheader));
     dibheader->dib_header_v3 = dibheader_version3;
     dibheader->dib_header_v4 = dibheader_version4;
