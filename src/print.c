@@ -32,6 +32,8 @@ char *get_CSType(uint32_t cstype)
         return "PROFILE_LINKED";
     case 1296188740:
         return "PROFILE_EMBEDDED";
+    default:
+        return "None";
     }
 }
 

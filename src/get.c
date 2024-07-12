@@ -2,9 +2,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-const int HEADERS_VERSION3_SIZE = 54;
-const int HEADERS_VERSION4_SIZE = 122;
-const int HEADERS_VERSION5_SIZE = 138;
+const uint32_t HEADERS_VERSION3_SIZE = 54;
+const uint32_t HEADERS_VERSION4_SIZE = 122;
+const uint32_t HEADERS_VERSION5_SIZE = 138;
 
 DIBheader *get_DIBheader(FILE *image, uint32_t offset)
 {
